@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Screen</title>
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="static/css/style.css"/>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="static/js/script.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Screen</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <form class="navbar-form navbar-left" role="search">
+                <div class="form-group">
+                    <input type="text" class="form-control urls" placeholder="URL">
+                </div>
+                <button class="btn btn-default">Go</button>
+            </form>
+            <ul class="nav navbar-nav">
+                <li><a href="#">Choose</a></li>
+            </ul>
+            <form class="navbar-form navbar-left" role="search">
+                <div class="form-group">
+                    <input type="text" class="form-control urls" placeholder="Banner Path">
+                </div>
+                <button class="btn btn-default">Insert</button>
+            </form>
+        <ul class="nav navbar-nav navbar-left">
+            <li><a href="">Save</a></li>
+        </ul>
+        </div>
+    </div>
+</nav>
+<iframe src="views/frame.html" frameborder="0" width="100%" height="1000" id="content"></iframe>
+</body>
+</html>
