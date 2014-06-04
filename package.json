@@ -10,6 +10,7 @@
     "jade": "0.20.0",
     "mongoose": "2.4.8",
     "phantom": "^0.6.3",
+    "phantomjs": "^1.9.7-8",
     "socket.io": "0.8.7"
   },
   "devDependencies": {
