@@ -1,9 +1,32 @@
 //setup Dependencies
 var connect = require('connect')
     , express = require('express')
-    , io = require('socket.io'),
-    phantom = require('./ph.js')
-    , port = (process.env.PORT || 8081);
+    , io = require('socket.io')
+//    phantom = require('./ph.js')
+//    phPage = require("./phantom-page.js")
+    , port = (process.env.PORT || 8081),
+    bodyParser = require('body-parser'),
+    uuid = require('node-uuid'),
+    mysql      = require('mysql'),
+    Busboy = require('busboy'),
+    path = require('path'),
+    os = require('os'),
+    fs = require('fs'),
+    connection = mysql.createConnection({
+        host     : '127.0.0.1',
+        user     : 'root',
+        password : '',
+        database:  'deployment'
+    }),
+    currentPath = __dirname|| "/Users/anton/polling";
+console.log(currentPath);
+connection.connect(function (err) {
+    if (err) {
+        console.log(err);
+    }
+    console.log('connected as id ' + connection.threadId);
+
+});
 
 //Setup Express
 //var server = express.createServer();
@@ -12,6 +35,7 @@ var server = express();
     server.set('views', __dirname + '/views');
     server.set('view options', { layout: false });
     server.use(express.static(__dirname + '/'));
+    server.use(bodyParser.json({limit: '50mb'}));
 //});
 
 //setup the errors
@@ -59,34 +83,114 @@ server.get('/', function(req,res){
 
     res.sendfile("views/index.html");
 });
-
+var regexp = new RegExp('<script(>|\\s(?!type="text/javascript"\\s+src|src|src=".+"\\s+type="text/javascript")[^>]*>)(.{1,2000}</script>)','gim');
+var regexp2 = /<script[^<]*?>[\S\s]*?<\/script>/gmi;
 server.get('/url', function (req, res) {
-    var url = req.query.q;
 
-    phantom.getPage().then(function (page) {
-        page.open(req.query.q, function (status) {
-            page.get("content", function (value) {
-                res.send(value);
-                phantom.ph.exit();
-            });
-            /*page.evaluate(function () { return document.title; }, function (result) {
-                console.log('Page title is ' + result);
-                phantom.exit();
-            });*/
-        });
+    var url = req.query.q;
+    var content = '';
+    var phantom = require('child_process').spawn('phantomjs', ['phantom-page.js', url]);
+    phantom.stdout.setEncoding('utf8');
+    phantom.stdout.on('data', function(data) {
+        content += data.toString();
+    });
+    phantom.on('exit', function(status_code) {
+        if (status_code !== 0) {
+            console.log('error');
+        } else {
+            content = content.replace(regexp2, "");
+            res.send(content);
+        }
     });
 
 });
 
+server.get('/exposure/:id/', function(req, res){
 
-//A Route for Creating a 500 Error (Useful to keep around)
-server.get('/500', function(req, res){
-    throw new Error('This is a 500 Error');
+    connection.query("SELECT * FROM `deployment` WHERE Deployment_ID='"+ req.params.id +"'", function (err, rows) {
+        res.send(rows[0].Content);
+    });
+
+});
+
+server.post('/put', function (req, res) {
+    var data = {
+        content: req.body.content,
+        url: req.body.url,
+        id: req.body.uuid || uuid.v1()
+    };
+//    debugger;
+    connection.query("INSERT INTO `deployment` (Deployment_ID, Content, Placeholder_ID) VALUES ('"+
+        data.id +
+        "', "+
+        connection.escape(data.content)+
+        ", '"+
+        data.placeholderID
+        +"')",
+        function (err, rows) {
+            res.send(err ? err : '1');
+        });
+});
+
+function makeFolder (_uuid, cb) {
+    var _uuid = _uuid || uuid.v1(),
+        saveToPath = path.join(currentPath, "files", _uuid);
+    console.log('field');
+    fs.mkdir(saveToPath, function (err) {
+        cb && cb();
+    });
+}
+
+function copyFiles(files, uuid) {
+    files.forEach(function (filename) {
+        var saveTo = path.join(currentPath, "files", uuid, filename),
+            saveFrom = path.join(currentPath, "files", "tmp", filename),
+            read = fs.createReadStream(saveFrom),
+            write = fs.createWriteStream(saveTo);
+        read.pipe(write);
+    });
+}
+
+server.post('/files', function (req, res, next) {
+    var busboy = new Busboy({ headers: req.headers }),
+        tmpDir = path.join(currentPath, "files", "tmp"),
+
+        _uuid, uuidBody = req.body.uuid,
+        files = [];
+
+    busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
+        var saveTo = path.join(tmpDir, path.basename(fieldname));
+        file.on('end', function() {
+            console.log('File [' + fieldname +'] Finished');
+        });
+        file.pipe(fs.createWriteStream(saveTo));
+        files.push(path.basename(fieldname));
+    });
+
+    busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated) {
+        if (fieldname !== 'uuid') return;
+        _uuid = (val && val !== "undefined" ? val : uuidBody) || uuid.v1();
+    });
+
+    busboy.on('finish', function() {
+        _uuid = _uuid || uuidBody || uuid.v1();
+        makeFolder(_uuid, copyFiles.bind(this, files, _uuid));
+        res.end(JSON.stringify({uuid: _uuid}));
+    });
+
+    busboy.on('end close', function() {
+        console.log('busboy end');
+    });
+    busboy.on('error', function(err) {
+        console.log(err);
+        });
+    req.pipe(fs.createWriteStream('files/req'));
+    return req.pipe(busboy);
 });
 
 //The 404 Route (ALWAYS Keep this as the last route)
 server.get('/*', function(req, res){
-    throw new NotFound;
+//    throw new NotFound;
 });
 
 function NotFound(msg){

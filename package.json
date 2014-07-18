@@ -4,11 +4,15 @@
   "author": "YOUR NAME <your@emailaddress.com>",
   "version": "0.0.1",
   "dependencies": {
+    "body-parser": "^1.4.3",
+    "busboy": "^0.2.7",
     "connect": "^3.0.0",
     "deferred": "^0.7.1",
     "express": "^4.4.0",
     "jade": "0.20.0",
     "mongoose": "2.4.8",
+    "mysql": "^2.3.2",
+    "node-uuid": "^1.4.1",
     "phantom": "^0.6.3",
     "phantomjs": "^1.9.7-8",
     "socket.io": "0.8.7"
