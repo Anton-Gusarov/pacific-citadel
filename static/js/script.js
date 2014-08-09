@@ -1,21 +1,41 @@
 define(
     [
         "highlight",
-        "adriver"
+        "adriver",
+        "resources",
+        "codes"
     ],
     function (
 
         Hightlight,
-        adriver
+        adriver,
+        Resources,
+        codes
 
         ) {
         app = new Backbone.Marionette.Application();
+
+        function replace(data, str) {
+            return result = str.replace(/\{\{(.*?)\}\}/g, function(match, token) {
+                return data[token];
+            });
+        }
 
         app.module("Layout", function (Layout, App, Backbone) {
 
             Layout.ControlView = Backbone.Marionette.ItemView.extend({
 
                 template: "#controlTemplate",
+
+                bannerItem: Handlebars.compile(
+                    $('#bannerItemTemplate').html()
+                ),
+
+                className: "panel panel-default control-block",
+
+                attributes: {
+                    "draggable": true
+                },
 
                 ui: {
                     formUrl: ".Url-Form",
@@ -27,7 +47,17 @@ define(
                     buttonUpload: ".Banner-Upload",
                     buttonPath: ".Banner-Button",
                     formFile: ".Banner-Form",
-                    buttonSave: ".Banner-Save"
+                    buttonSave: ".Banner-Save",
+                    adriverMenu: ".MenuAdriver",
+                    adfoxMenu: ".MenuAdfox",
+                    adriverList: ".Items-Adriver",
+                    adfoxList: ".Items-Adfox",
+                    adfoxItems: ".Item-Adfox",
+                    adriverItems: ".Item-Adriver",
+                    adriverLabel: ".Adriver-Label",
+                    adfoxLabel: ".Adfox-Label",
+                    adriverButton: "#adriver",
+                    adfoxButton: "#adfox"
                 },
 
                 events: {
@@ -36,11 +66,44 @@ define(
                     "click @ui.buttonUpload": "upload",
                     "click @ui.buttonPath": "insert",
                     "submit @ui.formFile": "submit",
+                    "click @ui.adriverItems": "chooseAdriver",
+                    "click @ui.adfoxItems": "chooseAdfox",
                     "click @ui.buttonSave": "save"
                 },
 
                 modelEvents: {
                     "sync": "onsync"
+                },
+
+                chooseAdriver: function (e) {
+                    e.preventDefault();
+                    var $el = e.currentTarget;
+                    this.ui.adriverLabel.html("Custom");
+                    this.ui.adfoxLabel.html("");
+                    this.ui.adriverButton.removeClass("btn-default").addClass("btn-info");
+                    this.ui.adfoxButton.removeClass("btn-info").addClass("btn-default");
+                    App.trigger("banner:system", {
+                        system: "adriver",
+                        type: "custom",
+                        template: adriver
+                    });
+                },
+
+                chooseAdfox: function (e) {
+                    e.preventDefault();
+                    var $el = $(e.currentTarget),
+                        type = $el.html().toLocaleLowerCase(),
+                        system = "adfox";
+                        template = codes[system + "." + type];
+                    this.ui.adfoxLabel.html($el.html());
+                    this.ui.adriverLabel.html("");
+                    this.ui.adfoxButton.removeClass("btn-default").addClass("btn-info");
+                    this.ui.adriverButton.removeClass("btn-info").addClass("btn-default");
+                    App.trigger("banner:system", {
+                        system: "adfox",
+                        type: type,
+                        template: template
+                    });
                 },
 
                 choose: function (e) {
@@ -55,6 +118,7 @@ define(
 
                 upload: function (e) {
                     e.preventDefault();
+                    App.vent.trigger("upload:start");
                     var formData = new FormData(),
                         files = this.ui.inputFile[0].files;
                     for (var i = 0, file; file = files[i]; ++i) {
@@ -65,7 +129,17 @@ define(
                     var xhr = new XMLHttpRequest();
                     xhr.open('POST', '/files', true);
                     xhr.onload = function(e) {
-                        this.model.set("uuid", JSON.parse(e.currentTarget.responseText).uuid);
+                        var data, files;
+                        try {
+                            data = JSON.parse(e.currentTarget.responseText);
+                        } catch (e) {}
+                        data && data.uuid && this.model.set("uuid", data.uuid);
+                        if (data.files) {
+                            files = this.model.get("files") || [];
+                            files = files.concat(data.files);
+                            this.model.set("files", files);
+                            App.vent.trigger("upload:end");
+                        }
                     }.bind(this);
 
                     xhr.send(formData);
@@ -106,6 +180,24 @@ define(
                     app.vent.trigger("change:url", {
                         value: this.model.get("url")
                     });
+                },
+
+                onShow: function () {
+                    var view = this,
+                        adriverItems = Resources.adriver.items.reduce(function (res, value) {
+                            return res + view.bannerItem({
+                                system: "Adriver",
+                                title: value
+                            });
+                        }, ""),
+                        adfoxItems = Resources.adfox.items.reduce(function (res, value) {
+                            return res + view.bannerItem({
+                                system: "Adfox",
+                                title: value
+                            });
+                        }, "");
+                    this.ui.adriverList.html(adriverItems);
+                    this.ui.adfoxList.html(adfoxItems);
                 }
 
             });
@@ -197,6 +289,13 @@ define(
 
             var InnerApp = Backbone.Marionette.View.extend({
 
+                system: {
+
+                    template: codes["adfox.flash"],
+                    system:"adfox",
+                    type:"flash"
+                },
+
                 initialize: function (ctx) {
                     this.ctx = ctx;
                     this.parent = ctx.parent;
@@ -210,6 +309,12 @@ define(
 
                     this.listenTo(App, "banner:insert", function (params) {
                         return this.insert(params);
+                    }.bind(this));
+
+                    this.listenTo(App, "banner:system", function (params) {
+
+                        this.system = params;
+
                     }.bind(this));
 
                     $(highlight).on("choose", function (e, elem) {
@@ -232,7 +337,20 @@ define(
                     node.innerHTML = "";
                     node.appendChild(bp);
                     var script = this.ctx.document.createElement('script');
-                    script.innerHTML = adriver(id, params.server);
+                    /*script.innerHTML = replace({
+                        id:id,
+                        server: params.server,
+                        file: "/files/395212.swf"
+                    }, this.system.template);*/
+
+                    var qs = $.param({
+                        id:id,
+                        server: params.server,
+                        files: this.app.reqres.request("getModel").get("files"),
+                        code: [this.system.system, this.system.type].join(".")
+                    });
+
+                    script.src = "/script?" + qs;
                     node.appendChild(script);
                     return bp;
                 },
@@ -251,7 +369,10 @@ define(
         app.module("Controller", function (Controller, App, Backbone) {
 
             var model = new (Backbone.Model.extend({
-                url:"/put"
+                url:"/put",
+                defaults: {
+                    files: []
+                }
             }));
 
             model.listenTo(App.vent, "iframe:chosen", function (elem) {
@@ -283,7 +404,13 @@ define(
                 });
                 app.iframeRegion.show(iframe);
 
+                app.controlRegion.$el.children(0)
+                    .draggable();
 
+            });
+
+            app.reqres.setHandler("getModel", function () {
+                return model;
             });
 
         });

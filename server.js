@@ -18,7 +18,21 @@ var connect = require('connect')
         password : '',
         database:  'deployment'
     }),
-    currentPath = __dirname|| "/Users/anton/polling";
+    currentPath = __dirname|| "/Users/anton/polling",
+    codePaths = {
+        "adfox.flash": path.join(currentPath, '/static/adfox/prepareCodeFlash.js'),
+        "adfox.fullscreen": path.join(currentPath, '/static/adfox/prepareCodeFullScreen.js'),
+        "adfox.screenglide": path.join(currentPath, '/static/adfox/prepareCodeScreenGlideFLV.js'),
+        "adfox.screenglidefullscreen": path.join(currentPath, '/static/adfox/prepareCodeScreenGlideFullscreen.js'),
+        "adriver.custom": path.join(currentPath, '/static/adriver/adriver.custom.js')
+    };
+
+function replace(data, str) {
+    return result = str.replace(/\{\{(.*?)\}\}/g, function(match, token) {
+        return data[token];
+    });
+}
+
 console.log(currentPath);
 connection.connect(function (err) {
     if (err) {
@@ -113,6 +127,16 @@ server.get('/exposure/:id/', function(req, res){
 
 });
 
+server.get('/script', function(req, res){
+
+    var file = fs.readFileSync(codePaths[req.query.code], "utf8");
+    if (req.query.files && req.query.files.length > 0) {
+        req.query.file = req.query.files[0];
+    }
+    res.send(replace(req.query, file));
+
+});
+
 server.post('/put', function (req, res) {
     var data = {
         content: req.body.content,
@@ -175,7 +199,7 @@ server.post('/files', function (req, res, next) {
     busboy.on('finish', function() {
         _uuid = _uuid || uuidBody || uuid.v1();
         makeFolder(_uuid, copyFiles.bind(this, files, _uuid));
-        res.end(JSON.stringify({uuid: _uuid}));
+        res.end(JSON.stringify({uuid: _uuid, files: files}));
     });
 
     busboy.on('end close', function() {

@@ -1,3 +1,17 @@
 .form-control.urls {
     width: 300px;
 }
+
+.control-block {
+    width: 416px;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+}
+.upload-button {
+    margin-top: 20px;
+}
+[draggable] {
+    -khtml-user-drag: element;
+    -webkit-user-drag: element;
+}

@@ -6,48 +6,78 @@
     <link rel="stylesheet" href="static/css/style.css"/>
 </head>
 <body>
-<nav class="navbar navbar-default" role="navigation" id="control">
-</nav>
+<div id="control">
+</div>
 <div class="Iframe">
 </div>
+<script type="text/html" id="bannerItemTemplate">
+    <li><a href="#" class="Item-{{system}}">{{title}}</a></li>
+</script>
 <script type="text/html" id="controlTemplate">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="#">Screen</a>
-        </div>
-        <div class="collapse navbar-collapse">
-            <form class="navbar-form navbar-left Url-Form" role="search">
+    <div class="panel-body">
+    <form class="navbar-form navbar-left Url-Form" role="search">
                 <div class="form-group">
                     <input type="text" class="form-control urls Url-Input" placeholder="URL">
                 </div>
                 <button class="btn btn-default Url-Button">Go</button>
             </form>
-            <ul class="nav navbar-nav">
-                <li><a href="#" class="Banner-Choose">Choose</a></li>
-            </ul>
-            <form class="navbar-form navbar-left Banner-Form" role="banner">
+    </div>
+
+    <div class="list-group">
+        <a href="#" class="list-group-item Banner-Choose">Choose</a>
+        <div class="list-group-item">
+            <form class="Banner-Form" role="banner">
                 <div class="form-group">
                     <!--<input type="text" class="form-control urls Banner-Path" placeholder="Banner Path">-->
                     <input type="file" class="Banner-File" multiple/>
-                    <button class="btn btn-default Banner-Upload">Upload</button>
+                    <button class="btn btn-default Banner-Upload upload-button">Upload</button>
                 </div>
-                <button class="btn btn-default Banner-Button">Insert</button>
             </form>
-            <ul class="nav navbar-nav navbar-left">
-                <li><a href="" class="Banner-Save">Save</a></li>
-            </ul>
         </div>
-    </div>
+        <div class="list-group-item">
+            <div class="btn-group MenuAdriver">
+                <button id="adriver" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    Adriver <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu Items-Adriver" role="menu" aria-labelledby="adriver">
+
+                </ul>
+            </div>
+            <label class="label label-default Adriver-Label" for=""></label>
+            <div class="btn-group MenuAdfox">
+                <button id="adfox" type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+                    Adfox <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu Items-Adfox" role="menu" aria-labelledby="adfox">
+                    <li><a href="#" class="Item-Adfox">Action</a></li>
+                    <li><a href="#" class="Item-Adfox">Another action</a></li>
+                    <li><a href="#" class="Item-Adfox">Something else here</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#" class="Item-Adfox">Separated link</a></li>
+                </ul>
+            </div>
+            <label class="label label-default Adfox-Label" for="">Flash</label>
+        </div>
+        <a class="list-group-item Banner-Button" href="">
+            Insert
+        </a>
+        <a href="" class="list-group-item Banner-Save">Save</a>
+            </div>
 </script>
 <script type="text/html" id="IframeTemplate">
     <iframe src="views/frame.html" frameborder="0" width="100%" height="100" id="content"></iframe>
 </script>
 <script src="bower_components/jquery/dist/jquery.min.js"></script>
+<script src="bower_components/jqueryui/ui/minified/core.min.js"></script>
+<script src="bower_components/jqueryui/ui/minified/widget.min.js"></script>
+<script src="bower_components/jqueryui/ui/minified/mouse.min.js"></script>
+<script src="bower_components/jqueryui/ui/minified/draggable.min.js"></script>
 <script src="bower_components/underscore/underscore.js"></script>
 <script src="bower_components/backbone/backbone.js"></script>
 <script src="bower_components/backbone.marionette/backbone.marionette.js"></script>
+<script src="bower_components/handlebars/handlebars.min.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 <script src="bower_components/requirejs/require.js"></script>
-<script src="bower_components/bootstrap/js/popover.js"></script>
 <script src="static/js/app.js"></script>
 </body>
 </html>
