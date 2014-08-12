@@ -4,22 +4,39 @@
     <title>Screen</title>
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="static/css/style.css"/>
+    <link rel="stylesheet" href="static/css/loader.css"/>
 </head>
 <body>
 <div id="control">
 </div>
 <div class="Iframe">
 </div>
+<script type="text/html" id="loaderTemplate">
+    <div class="overlay">
+        <div class="loader-container">
+            <div class="bubblingG Loader">
+                <span id="bubblingG_1">
+                </span>
+                  <span id="bubblingG_2">
+                </span>
+                  <span id="bubblingG_3">
+                </span>
+            </div>
+        </div>
+    </div>
+</script>
 <script type="text/html" id="bannerItemTemplate">
     <li><a href="#" class="Item-{{system}}">{{title}}</a></li>
 </script>
 <script type="text/html" id="controlTemplate">
     <div class="panel-body">
     <form class="navbar-form navbar-left Url-Form" role="search">
-                <div class="form-group">
+                <div class="input-group">
                     <input type="text" class="form-control urls Url-Input" placeholder="URL">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default Url-Button" type="button">Go!</button>
+                    </span>
                 </div>
-                <button class="btn btn-default Url-Button">Go</button>
             </form>
     </div>
 
@@ -27,10 +44,10 @@
         <a href="#" class="list-group-item Banner-Choose">Choose</a>
         <div class="list-group-item">
             <form class="Banner-Form" role="banner">
-                <div class="form-group">
+                <div class="input-group">
                     <!--<input type="text" class="form-control urls Banner-Path" placeholder="Banner Path">-->
                     <input type="file" class="Banner-File" multiple/>
-                    <button class="btn btn-default Banner-Upload upload-button">Upload</button>
+                    <!--<button class="btn btn-default Banner-Upload upload-button">Upload</button>-->
                 </div>
             </form>
         </div>
@@ -61,6 +78,12 @@
         <a class="list-group-item Banner-Button" href="">
             Insert
         </a>
+        <div class="list-group-item">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="URL">
+                <input type="text" class="form-control" placeholder="URL">
+            </div>
+        </div>
         <a href="" class="list-group-item Banner-Save">Save</a>
             </div>
 </script>

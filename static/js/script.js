@@ -23,6 +23,26 @@ define(
 
         app.module("Layout", function (Layout, App, Backbone) {
 
+            Layout.LoaderView = Backbone.Marionette.View.extend({
+
+                template: $('#loaderTemplate').html(),
+
+                initialize: function () {
+                    this.loader = $(this.template);
+                    this.loader.hide();
+                    this.$el.prepend(this.loader);
+                },
+
+                hide: function () {
+                    this.loader.hide();
+                },
+
+                show: function () {
+                    this.loader.show();
+                }
+
+            });
+
             Layout.ControlView = Backbone.Marionette.ItemView.extend({
 
                 template: "#controlTemplate",
@@ -62,8 +82,10 @@ define(
 
                 events: {
                     "click @ui.buttonUrl": "submitUrl",
+                    "keydown @ui.inputUrl": "onkeydownUrl",
                     "click @ui.buttonChoose": "choose",
                     "click @ui.buttonUpload": "upload",
+                    "change @ui.inputFile": "upload",
                     "click @ui.buttonPath": "insert",
                     "submit @ui.formFile": "submit",
                     "click @ui.adriverItems": "chooseAdriver",
@@ -74,6 +96,18 @@ define(
                 modelEvents: {
                     "sync": "onsync"
                 },
+
+                onkeydownUrl: function (e) {
+                    if (e.keyCode === 13) {
+                        e.preventDefault();
+                        this.submitUrl();
+                    }
+                },
+                /*initialize: function () {
+                    this.on("destroy", function () {
+                        this.stopListening();
+                    });
+                },*/
 
                 chooseAdriver: function (e) {
                     e.preventDefault();
@@ -138,7 +172,7 @@ define(
                             files = this.model.get("files") || [];
                             files = files.concat(data.files);
                             this.model.set("files", files);
-                            App.vent.trigger("upload:end");
+                            App.vent.trigger("upload:finish");
                         }
                     }.bind(this);
 
@@ -169,7 +203,7 @@ define(
                 },
 
                 submitUrl: function (e) {
-                    e.preventDefault();
+                    e && e.preventDefault();
                     var url = this.ui.inputUrl.val();
                     if (!/^http(s)?:\/\//i.test(url)) {
                         url = 'http://' + url;
@@ -198,6 +232,10 @@ define(
                         }, "");
                     this.ui.adriverList.html(adriverItems);
                     this.ui.adfoxList.html(adfoxItems);
+
+                    this.loader = new App.Layout.LoaderView({el: this.$el});
+                    this.listenTo(App, "upload:start", this.loader.show.bind(this.loader));
+                    this.listenTo(App, "upload:finish", this.loader.hide.bind(this.loader));
                 }
 
             });
@@ -412,6 +450,8 @@ define(
             app.reqres.setHandler("getModel", function () {
                 return model;
             });
+
+
 
         });
 

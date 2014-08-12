@@ -12,12 +12,20 @@ var connect = require('connect')
     path = require('path'),
     os = require('os'),
     fs = require('fs'),
-    connection = mysql.createConnection({
+    mysqlLocal = {
         host     : '127.0.0.1',
         user     : 'root',
         password : '',
         database:  'deployment'
-    }),
+    },
+    mysqlHeroku = {
+        host     : 'mysql://us-cdbr-iron-east-01.cleardb.net/heroku_79618f98f4dfc5c?reconnect=true',
+        user     : 'b5689112595a87',
+        password : 'b3e42b75',
+        database:  'deployment'
+    },
+    env = process.argv[process.argv.length - 1] === "--production" ? "production" : "development",
+    connection = mysql.createConnection(env === "production" ? mysqlHeroku : mysqlLocal),
     currentPath = __dirname|| "/Users/anton/polling",
     codePaths = {
         "adfox.flash": path.join(currentPath, '/static/adfox/prepareCodeFlash.js'),

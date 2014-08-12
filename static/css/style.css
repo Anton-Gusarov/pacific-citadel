@@ -7,6 +7,7 @@
     position: absolute;
     top: 5px;
     left: 5px;
+    box-shadow: 1px 1px 5px;
 }
 .upload-button {
     margin-top: 20px;
@@ -14,4 +15,21 @@
 [draggable] {
     -khtml-user-drag: element;
     -webkit-user-drag: element;
+}
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #ffffff;
+    opacity: 0.7;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+}
+
+.loader-container {
+    margin: auto;
+    width: 100px;
+    position: relative;
+    top: 40%;
 }
