@@ -41,7 +41,7 @@ function replace(data, str) {
     });
 }
 
-console.log(currentPath);
+//console.log(currentPath);
 connection.connect(function (err) {
     if (err) {
         console.log(err);
@@ -118,7 +118,7 @@ server.get('/url', function (req, res) {
     });
     phantom.on('exit', function(status_code) {
         if (status_code !== 0) {
-            console.log('error');
+//            console.log('error');
         } else {
             content = content.replace(regexp2, "");
             res.send(content);
@@ -167,7 +167,7 @@ server.post('/put', function (req, res) {
 function makeFolder (_uuid, cb) {
     var _uuid = _uuid || uuid.v1(),
         saveToPath = path.join(currentPath, "files", _uuid);
-    console.log('field');
+//    console.log('field');
     fs.mkdir(saveToPath, function (err) {
         cb && cb();
     });
@@ -193,7 +193,7 @@ server.post('/files', function (req, res, next) {
     busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
         var saveTo = path.join(tmpDir, path.basename(fieldname));
         file.on('end', function() {
-            console.log('File [' + fieldname +'] Finished');
+//            console.log('File [' + fieldname +'] Finished');
         });
         file.pipe(fs.createWriteStream(saveTo));
         files.push(path.basename(fieldname));
@@ -211,12 +211,12 @@ server.post('/files', function (req, res, next) {
     });
 
     busboy.on('end close', function() {
-        console.log('busboy end');
+//        console.log('busboy end');
     });
     busboy.on('error', function(err) {
-        console.log(err);
+//        console.log(err);
         });
-    req.pipe(fs.createWriteStream('files/req'));
+//    req.pipe(fs.createWriteStream('files/req'));
     return req.pipe(busboy);
 });
 
