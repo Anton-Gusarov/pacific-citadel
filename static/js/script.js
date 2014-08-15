@@ -21,6 +21,12 @@ define(
             });
         }
 
+        var config = {
+            isProduction: window.location.toString().indexOf("localhost") === -1,
+            isDevelopment: window.location.toString().indexOf("localhost") > -1,
+            appUrl: window.location.protocol + '//' + window.location.host + window.location.pathname
+        };
+
         app.module("Layout", function (Layout, App, Backbone) {
 
             Layout.LoaderView = Backbone.Marionette.View.extend({
@@ -186,7 +192,7 @@ define(
                     this.model.set("server", this.ui.inputPath.val());
                     App.trigger("banner:insert", {
                         node: elem,
-                        server: 'http://localhost:8081/files/' + this.model.get('uuid') + '/'
+                        server: config.appUrl + 'files/' + this.model.get('uuid') + '/'
                     });
                     this.model.set("placeholderID", elem.childNodes[0].id);
                 },
