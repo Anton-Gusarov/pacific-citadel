@@ -83,7 +83,8 @@ define(
                     adriverLabel: ".Adriver-Label",
                     adfoxLabel: ".Adfox-Label",
                     adriverButton: "#adriver",
-                    adfoxButton: "#adfox"
+                    adfoxButton: "#adfox",
+                    exposureUrl: ".Exposure-Url"
                 },
 
                 events: {
@@ -96,11 +97,13 @@ define(
                     "submit @ui.formFile": "submit",
                     "click @ui.adriverItems": "chooseAdriver",
                     "click @ui.adfoxItems": "chooseAdfox",
-                    "click @ui.buttonSave": "save"
+                    "click @ui.buttonSave": "save",
+                    "click @ui.exposureUrl": "selectExposure"
                 },
 
                 modelEvents: {
-                    "sync": "onsync"
+                    "sync": "onsync",
+                    "change:exposureUrl": "setExposure"
                 },
 
                 onkeydownUrl: function (e) {
@@ -108,6 +111,15 @@ define(
                         e.preventDefault();
                         this.submitUrl();
                     }
+                },
+
+                selectExposure: function () {
+                    this.ui.exposureUrl[0].setSelectionRange(0, this.ui.exposureUrl[0].value.length);
+                },
+
+                setExposure: function () {
+                    this.ui.exposureUrl.val(this.model.get("exposureUrl"));
+                    this.selectExposure();
                 },
                 /*initialize: function () {
                     this.on("destroy", function () {
@@ -201,11 +213,14 @@ define(
                     var content = App.request('content');
                 },
 
-                onsync: function (e) {},
+                onsync: function (e) {
+                    this.loader.hide();
+                },
 
                 save: function (e) {
                     e.preventDefault();
                     App.execute("save");
+                    this.loader.show();
                 },
 
                 submitUrl: function (e) {
@@ -429,10 +444,19 @@ define(
 
             App.commands.setHandler("save", function (data) {
 
+                var content = App.request('content');
+                App.trigger("save-start", {
+                    content: content
+                });
+
                 model
-                    .set("content", App.request('content'))
+                    .set("content", content)
                     .save(
-                        _.extend( {}, model.attributes, {dom:null})
+                        _.extend( {}, model.attributes, {dom:null}),
+                        function () {
+                            App.trigger("save");
+                            App.trigger("save-finish");
+                        }
                     );
             });
 

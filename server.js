@@ -19,13 +19,15 @@ var connect = require('connect')
         database:  'deployment'
     },
     mysqlHeroku = {
-        host     : 'mysql://us-cdbr-iron-east-01.cleardb.net/heroku_79618f98f4dfc5c?reconnect=true',
-        user     : 'b5689112595a87',
-        password : 'b3e42b75',
+        host     : 'mysql://b5689112595a87:b3e42b75@us-cdbr-iron-east-01.cleardb.net/heroku_79618f98f4dfc5c?reconnect=true',
+//        user     : 'b5689112595a87',
+//        password : 'b3e42b75',
         database:  'deployment'
     },
+    mysqlHerokuUrl = 'mysql://b5689112595a87:b3e42b75@us-cdbr-iron-east-01.cleardb.net/heroku_79618f98f4dfc5c?reconnect=true',
     env = process.argv[process.argv.length - 1] === "--production" ? "production" : "development",
-    connection = mysql.createConnection(env === "production" ? mysqlHeroku : mysqlLocal),
+    connection = mysql.createPool(env === "production" ? mysqlHerokuUrl : mysqlHerokuUrl),
+//    connection,
     currentPath = __dirname|| "/Users/anton/polling",
     codePaths = {
         "adfox.flash": path.join(currentPath, '/static/adfox/prepareCodeFlash.js'),
@@ -42,12 +44,19 @@ function replace(data, str) {
 }
 
 //console.log(currentPath);
-connection.connect(function (err) {
+/*connection.connect(function (err) {
     if (err) {
         console.log(err);
     }
     console.log('connected as id ' + connection.threadId);
 
+});*/
+connection.on('connection', function(conn) {
+//    connection = conn;
+    console.log('connected as id ' + conn.threadId);
+});
+process.on('exit', function () {
+//    connection.release();
 });
 
 //Setup Express
@@ -160,8 +169,14 @@ server.post('/put', function (req, res) {
         data.placeholderID
         +"')",
         function (err, rows) {
-            res.send(err ? err : '1');
+            var response = {
+                exposureUrl: res.req.headers.origin + "/exposure/" + data.id + "/"
+            };
+            res.send(err ? err : response);
+        }, function (err, result) {
+            "";
         });
+
 });
 
 function makeFolder (_uuid, cb) {
