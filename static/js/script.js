@@ -67,6 +67,7 @@ define(
                     formUrl: ".Url-Form",
                     inputUrl: ".Url-Input",
                     buttonUrl: ".Url-Button",
+                    buttonFix: ".Fix-Button",
                     buttonChoose: ".Banner-Choose",
                     inputPath: ".Banner-Path",
                     inputFile: ".Banner-File",
@@ -89,6 +90,7 @@ define(
 
                 events: {
                     "click @ui.buttonUrl": "submitUrl",
+                    "click @ui.buttonFix": "fix",
                     "keydown @ui.inputUrl": "onkeydownUrl",
                     "click @ui.buttonChoose": "choose",
                     "click @ui.buttonUpload": "upload",
@@ -104,6 +106,11 @@ define(
                 modelEvents: {
                     "sync": "onsync",
                     "change:exposureUrl": "setExposure"
+                },
+
+                fix: function (e) {
+                    e.preventDefault();
+                    App.execute("matchHeight");
                 },
 
                 onkeydownUrl: function (e) {
@@ -280,6 +287,9 @@ define(
                 initialize: function () {
 
                     App.reqres.setHandler("content", this.content.bind(this));
+                    App.commands.setHandler("matchHeight", function() {
+                        this.ui.iframe.trigger("load");
+                    }.bind(this));
 
                 },
 

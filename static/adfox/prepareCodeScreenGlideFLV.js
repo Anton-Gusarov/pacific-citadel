@@ -6,11 +6,11 @@ if(aTrackingUrl609230 != '') {
     aTrackingUrl609230 = '';
 }
 var aEventOpenClose609230 = new Image();
-var aSwf1609230 = 'http://content.adfox.ru/110705/adfox/153592/401956_1.swf';
+var aSwf1609230 = '{{server}}{{file1}}';
 var aFlash1Width609230 = '240';
 var aFlash1Height609230 = '400';
 var aWmode1609230 = 'opaque';
-var aSwf2609230 = 'http://content.adfox.ru/110705/adfox/153592/401956_5.swf';
+var aSwf2609230 = '{{server}}{{file2}}';
 var aFlash2Width609230 = '600';
 var aFlash2Height609230 = '600';
 var aWmode2609230 = 'transparent';
@@ -190,4 +190,7 @@ function adfoxCreateBanner(banID, swf1, swf2, flash1Width, flash1Height, flash2W
 }
 
 adfoxObject1046151116 = adfoxCreateBanner('609230', aSwf1609230, aSwf2609230, aFlash1Width609230, aFlash1Height609230, aFlash2Width609230, aFlash2Height609230, aWmode1609230, aWmode2609230, aSdvigX2609230, aSdvigY2609230, aDirection609230, aFirShowFlNum609230, aQuanRash609230, aFlVars609230, aSrcImg609230);
-document.write(adfoxObject1046151116);
+
+    var div = document.createElement('div');
+    document.getElementById('{{id}}').appendChild(div);
+    div.innerHTML = adfoxObject1046151116;

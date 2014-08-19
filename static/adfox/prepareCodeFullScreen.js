@@ -23,7 +23,7 @@ var vlink464256 = (''=='') ? 'none' : '';
 var flashVars464256 = 'timerClose=10&bannerID=464256&link1=http%3A//ads%2Eadfox%2Eru/168627/goLink%3Fp2%3Dekwz%26p1%3Dbcysu%26p5%3Dbakua%26pr%3Ddwzcpxd&vlink=' + vlink464256 + '&target=_top&' + events464256;
 
 var inputParams464256 = {
-    movieSrc: '{{server}}{{file}}',
+    movieSrc: '{{server}}{{file1}}',
     imageSrc: '{{server}}{{image}}',
     widthCreative: '100%',
     heightCreative: '100%',

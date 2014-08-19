@@ -146,9 +146,15 @@ server.get('/exposure/:id/', function(req, res){
 
 server.get('/script', function(req, res){
 
-    var file = fs.readFileSync(codePaths[req.query.code], "utf8");
+    var file = fs.readFileSync(codePaths[req.query.code], "utf8"),
+        sgCodes = ["adfox.screenglide"];
     if (req.query.files && req.query.files.length > 0) {
-        req.query.file = req.query.files[0];
+        req.query.file1 = req.query.files[0];
+        req.query.file2 = req.query.files[1];
+        if (sgCodes.indexOf(req.query.code) > -1) {
+            req.query.file1 = "panel1.swf";
+            req.query.file2 = "panel2.swf";
+        }
     }
     res.send(replace(req.query, file));
 
