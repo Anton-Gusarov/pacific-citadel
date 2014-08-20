@@ -1,4 +1,3 @@
-console.log("hi");
 parent.$(parent.document.getElementById("content")).trigger("load:after");
 (function () {
 

@@ -21,6 +21,11 @@ define(
             });
         }
 
+        Backbone.Marionette.TemplateCache.prototype.compileTemplate = function(rawTemplate) {
+            // use Handlebars.js to compile the template
+            return Handlebars.compile(rawTemplate);
+        }
+
         var config = {
             isProduction: window.location.toString().indexOf("localhost") === -1,
             isDevelopment: window.location.toString().indexOf("localhost") > -1,
@@ -510,6 +515,8 @@ define(
             socket.on('server_message', function(data){
              $('#receiver').append('<li>' + data + '</li>');
             });*/
+
+        app.start();
 
         return app;
 });

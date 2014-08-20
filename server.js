@@ -112,7 +112,7 @@ io.sockets.on('connection', function(socket){
 
 server.get('/', function(req,res){
 
-    res.sendfile("views/index.html");
+    res.sendfile(env === "production" ? "views/index.prod.html" : "views/index.html");
 });
 var regexp = new RegExp('<script(>|\\s(?!type="text/javascript"\\s+src|src|src=".+"\\s+type="text/javascript")[^>]*>)(.{1,2000}</script>)','gim');
 var regexp2 = /<script[^<]*?>[\S\s]*?<\/script>/gmi;

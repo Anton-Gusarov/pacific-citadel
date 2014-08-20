@@ -1,3 +1,4 @@
+var libPath = '../../bower_components';
 requirejs.config({
     baseUrl: 'static/js',
     //except, if the module ID starts with "app",
@@ -6,8 +7,8 @@ requirejs.config({
     //never includes a ".js" extension since
     //the paths config could be for a directory.
     paths: {
-        lib: '../../bower_components',
-        text: '../../bower_components/requirejs-text/text'
+        lib: libPath,
+        text: libPath + '/requirejs-text/text'
     },
     text: {
         useXhr: function (url, protocol, hostname, port) {
@@ -25,13 +26,10 @@ requirejs.config({
     deps:["text"]
 });
 
-Backbone.Marionette.TemplateCache.prototype.compileTemplate = function(rawTemplate) {
-    // use Handlebars.js to compile the template
-    return Handlebars.compile(rawTemplate);
-}
-
 // Start the main app logic.
-requirejs(['script'],
+requirejs([
+    'script'
+],
     function   () {
-        app.start();
+
     });
