@@ -12,6 +12,7 @@ var connect = require('connect')
     path = require('path'),
     os = require('os'),
     fs = require('fs'),
+    urlParser = require('url'),
     mysqlLocal = {
         host     : '127.0.0.1',
         user     : 'root',
@@ -121,6 +122,11 @@ server.get('/url', function (req, res) {
     var url = req.query.q;
     var content = '';
     var phantom = require('child_process').spawn('phantomjs', ['phantom-page.js', url]);
+    var regexpImg = /<img\s*[^>]*src=["\']?([^\s"\']+)["\']?\s*[^>]*>/img,
+        parsedUrl = urlParser.parse(url),
+        urlHost = parsedUrl.host,
+        urlProtocol = parsedUrl.protocol;
+
     phantom.stdout.setEncoding('utf8');
     phantom.stdout.on('data', function(data) {
         content += data.toString();
@@ -130,6 +136,19 @@ server.get('/url', function (req, res) {
 //            console.log('error');
         } else {
             content = content.replace(regexp2, "");
+            content = content.replace(regexpImg, function (str, p1) {
+                var parsed = urlParser.parse(p1),
+                    url;
+                if (p1.substr(0,2) === "//") {
+                    url = p1;
+                }
+                if (!parsed.host || /^\/[^/]/i.test(p1)) {
+                    url = urlProtocol + "//" + urlHost + (p1[0] === "/" ? p1 : "/" + p1);
+                }
+                url = p1;
+                return '<img src="' + url + '"/>';
+            });
+
             res.send(content);
         }
     });
