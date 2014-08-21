@@ -311,7 +311,7 @@ define(
 
                 setUrl: function () {
                     this.ui.iframe.attr('src', "/url?q=" + this.model.get("url"));
-                    this.ui.iframe.height(300);
+                    this.ui.iframe.height(700);
                 },
 
                 onShow: function () {
