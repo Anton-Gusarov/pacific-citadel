@@ -21,6 +21,20 @@ define(
             });
         }
 
+        function clone (obj, ignore) {
+            var dest = {};
+            for (var i in obj) {
+                if (!obj.hasOwnProperty(i)) {
+                    continue;
+                }
+                if (_.inArray(i, ignore)) {
+                    continue;
+                }
+                dest[i] = obj[i];
+            }
+            return dest;
+        }
+
         Backbone.Marionette.TemplateCache.prototype.compileTemplate = function(rawTemplate) {
             // use Handlebars.js to compile the template
             return Handlebars.compile(rawTemplate);
@@ -68,6 +82,10 @@ define(
                     "draggable": true
                 },
 
+                initialize: function () {
+                    this.listenTo(App.vent, "iframe:loaded", this.hideLoader);
+                },
+
                 ui: {
                     formUrl: ".Url-Form",
                     inputUrl: ".Url-Input",
@@ -110,7 +128,8 @@ define(
 
                 modelEvents: {
                     "sync": "onsync",
-                    "change:exposureUrl": "setExposure"
+                    "change:exposureUrl": "setExposure",
+                    "change:url": "showLoader"
                 },
 
                 fix: function (e) {
@@ -269,6 +288,14 @@ define(
                     this.loader = new App.Layout.LoaderView({el: this.$el});
                     this.listenTo(App, "upload:start", this.loader.show.bind(this.loader));
                     this.listenTo(App, "upload:finish", this.loader.hide.bind(this.loader));
+                },
+
+                showLoader: function () {
+                    this.loader.show();
+                },
+
+                hideLoader: function () {
+                    this.loader.hide();
                 }
 
             });
@@ -306,6 +333,7 @@ define(
                 },
 
                 load: function (e) {
+                    App.vent.trigger("iframe:loaded");
                     this.matchHeight();
                 },
 
@@ -467,7 +495,7 @@ define(
                 model
                     .set("content", content)
                     .save(
-                        _.extend( {}, model.attributes, {dom:null}),
+                        clone(model.toJSON(), ["node"]),
                         function () {
                             App.trigger("save");
                             App.trigger("save-finish");

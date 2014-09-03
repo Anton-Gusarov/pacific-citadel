@@ -27,7 +27,7 @@ var connect = require('connect')
     },
     mysqlHerokuUrl = 'mysql://b5689112595a87:b3e42b75@us-cdbr-iron-east-01.cleardb.net/heroku_79618f98f4dfc5c?reconnect=true',
     env = process.argv[process.argv.length - 1] === "--production" ? "production" : "development",
-    connection = mysql.createPool(env === "production" ? mysqlHerokuUrl : mysqlHerokuUrl),
+    connection = mysql.createPool(env === "production" ? mysqlHerokuUrl : mysqlLocal),
 //    connection,
     currentPath = __dirname|| "/Users/anton/polling",
     codePaths = {
@@ -123,6 +123,7 @@ server.get('/url', function (req, res) {
     var content = '';
     var phantom = require('child_process').spawn('phantomjs', ['phantom-page.js', url]);
     var regexpImg = /<img\s*[^>]*src=["\']?([^\s"\']+)["\']?\s*[^>]*>/img,
+        regexpLink = /<link\s*[^>]*href=["\']?([^\s"\']+)["\']?\s*[^>]*>/img,
         parsedUrl = urlParser.parse(url),
         urlHost = parsedUrl.host,
         urlProtocol = parsedUrl.protocol;
@@ -138,16 +139,26 @@ server.get('/url', function (req, res) {
             content = content.replace(regexp2, "");
             content = content.replace(regexpImg, function (str, p1) {
                 var parsed = urlParser.parse(p1),
-                    url;
+                    url = p1;
                 if (p1.substr(0,2) === "//") {
                     url = p1;
                 }
                 if (!parsed.host || /^\/[^/]/i.test(p1)) {
                     url = urlProtocol + "//" + urlHost + (p1[0] === "/" ? p1 : "/" + p1);
                 }
-                url = p1;
                 return '<img src="' + url + '"/>';
             });
+            /*content = content.replace(regexpLink, function (str, p1) {
+                var parsed = urlParser.parse(p1),
+                    url = p1;
+                if (p1.substr(0,2) === "//") {
+                    url = p1;
+                }
+                if (!parsed.host || /^\/[^/]/i.test(p1)) {
+                    url = urlProtocol + "//" + urlHost + (p1[0] === "/" ? p1 : "/" + p1);
+                }
+                return '<link rel="stylesheet" href="' + url + '" type="text/css" media="screen">';
+            });*/
 
             res.send(content);
         }
