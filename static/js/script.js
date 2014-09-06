@@ -27,7 +27,7 @@ define(
                 if (!obj.hasOwnProperty(i)) {
                     continue;
                 }
-                if (_.inArray(i, ignore)) {
+                if (_.indexOf(ignore, i) > -1) {
                     continue;
                 }
                 dest[i] = obj[i];
@@ -491,16 +491,19 @@ define(
                 App.trigger("save-start", {
                     content: content
                 });
+                var dom = model.get("dom");
+                model.set("dom", null);
 
                 model
                     .set("content", content)
                     .save(
-                        clone(model.toJSON(), ["node"]),
+                        model.toJSON(),
                         function () {
                             App.trigger("save");
                             App.trigger("save-finish");
                         }
                     );
+                model.set("dom", dom);
             });
 
             Controller.addInitializer(function () {

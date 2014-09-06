@@ -139,14 +139,14 @@ server.get('/url', function (req, res) {
             content = content.replace(regexp2, "");
             content = content.replace(regexpImg, function (str, p1) {
                 var parsed = urlParser.parse(p1),
-                    url = p1;
+                    newurl;
                 if (p1.substr(0,2) === "//") {
-                    url = p1;
-                }
+                    newurl = p1;
+                } else
                 if (!parsed.host || /^\/[^/]/i.test(p1)) {
-                    url = urlProtocol + "//" + urlHost + (p1[0] === "/" ? p1 : "/" + p1);
+                    newurl = urlProtocol + "//" + urlHost + (p1[0] === "/" ? p1 : "/" + p1);
                 }
-                return '<img src="' + url + '"/>';
+                return newurl ? str.replace(/src=["\']?([^\s"\']+)["\']/, 'src="' + newurl + '"') : str;
             });
             /*content = content.replace(regexpLink, function (str, p1) {
                 var parsed = urlParser.parse(p1),
