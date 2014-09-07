@@ -84,6 +84,7 @@ define(
 
                 initialize: function () {
                     this.listenTo(App.vent, "iframe:loaded", this.hideLoader);
+                    this.listenTo(App, "save-finish", this.insert);
                 },
 
                 ui: {
@@ -201,7 +202,7 @@ define(
 
                 upload: function (e) {
                     e.preventDefault();
-                    App.vent.trigger("upload:start");
+                    App.trigger("upload:start");
                     var formData = new FormData(),
                         files = this.ui.inputFile[0].files;
                     for (var i = 0, file; file = files[i]; ++i) {
@@ -221,7 +222,7 @@ define(
                             files = this.model.get("files") || [];
                             files = files.concat(data.files);
                             this.model.set("files", files);
-                            App.vent.trigger("upload:finish");
+                            App.trigger("upload:finish");
                         }
                     }.bind(this);
 
@@ -229,7 +230,7 @@ define(
                 },
 
                 insert: function (e) {
-                    e.preventDefault();
+                    if (e && e.preventDefault) e.preventDefault();
                     var elem = this.model.get("dom");
                     if (!elem) return;
                     this.model.set("server", this.ui.inputPath.val());
@@ -286,8 +287,8 @@ define(
                     this.ui.adfoxList.html(adfoxItems);
 
                     this.loader = new App.Layout.LoaderView({el: this.$el});
-                    this.listenTo(App, "upload:start", this.loader.show.bind(this.loader));
-                    this.listenTo(App, "upload:finish", this.loader.hide.bind(this.loader));
+                    this.listenTo(App, "upload:start", this.showLoader);
+                    this.listenTo(App, "upload:finish", this.hideLoader);
                 },
 
                 showLoader: function () {
@@ -498,11 +499,12 @@ define(
                     .set("content", content)
                     .save(
                         model.toJSON(),
-                        function () {
+                    {
+                        success: function () {
                             App.trigger("save");
                             App.trigger("save-finish");
                         }
-                    );
+                    });
                 model.set("dom", dom);
             });
 
